@@ -1,0 +1,8 @@
+<main>
+    <string name="title">This is an title</string>
+    <number name="value">38</number>
+    <vec2 name="vector">
+        <number name="x">10</number>
+        <number name="y">15</number>
+    </vec2>
+</main>
