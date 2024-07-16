@@ -3,7 +3,7 @@
 
 int main() {
     XMLDocument doc;
-    if (!doc.loadFile("example.xml")) {
+    if (!doc.load("example.xml")) {
         std::cerr << "Error parsing XML: " << doc.getError() << std::endl;
         return 1;
     }

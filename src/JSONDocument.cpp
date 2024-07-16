@@ -9,7 +9,7 @@ JSONDocument::~JSONDocument() {
     deleteAllNodes();
 }
 
-bool JSONDocument::loadFile(const std::string &filename) {
+bool JSONDocument::load(const std::string &filename) {
     // Vérifier l'extension du fichier
     if (!checkExtensions(filename, {"json"})) {
         _error = "File extension not allowed";
@@ -32,25 +32,19 @@ bool JSONDocument::loadFile(const std::string &filename) {
         
         if (content[0] == '{') {
             if (_root) delete _root;
-            _root = new JSONNode("root");
+            _root = SharedPtr<JSONNode>(new JSONNode("root"));
             parseJSON(content, _root);
         } else {
             _error = "File is not a JSON file";
-            return false;
         }
     } else {
         _error = "File is empty";
-        return false;
     }
     
-    if (_error.empty()) {
-        return true;
-    } else {
-        return false;
-    }
+    return _error.empty();
 }
 
-bool JSONDocument::saveInFile(const std::string &filename) {
+bool JSONDocument::save(const std::string &filename) {
     if (!_root) {
         _error = "No root node";
         return false;
@@ -74,12 +68,12 @@ bool JSONDocument::saveInFile(const std::string &filename) {
     return true;
 }
 
-const std::string JSONDocument::getError() const {
+const std::string &JSONDocument::getError() const {
     return _error;
 }
 
-Node *JSONDocument::getRoot() const {
-    return _root;
+SharedPtr<Node> JSONDocument::getRoot() const {
+    return SharedPtr<Node>(dynamic_cast<Node*>(_root.get()));
 }
 
 void JSONDocument::deleteAllNodes() {
@@ -91,5 +85,5 @@ std::string JSONDocument::toString() const {
     return (_root) ? _root->toString() : "{}";
 }
 
-void JSONDocument::parse(const std::string &content, JSONNode *parent) {
+void JSONDocument::parse(const std::string &content, SharedPtr<JSONNode> parent) {
 }

@@ -3,28 +3,28 @@
 
 #include "Document.hpp"
 #include "ConfigNode.hpp"
+#include "SharedPtr.hpp"
 
 class ConfigDocument : public Document {
 public:
     ConfigDocument();
     ~ConfigDocument();
 
-    bool loadFile(const std::string &filename) override;
-    bool saveInFile(const std::string &filename) override;
+    bool load(const std::string &filename) override;
+    bool save(const std::string &filename) override;
 
-    const std::string getError() const override;
+    const std::string &getError() const override;
 
-    Node *getRoot() const override;
+    SharedPtr<Node> getRoot() const override;
 
     void deleteAllNodes() override;
 
     std::string toString() const;
 
 private:
-    ConfigNode *_root;
-    std::string _error;
+    SharedPtr<ConfigNode> _root;
 
-    void parse(const std::string &content, ConfigNode *parent);
+    void parse(const std::string &content, SharedPtr<ConfigNode> parent);
 };
 
 #endif // __CONFIG_DOCUMENT_HPP

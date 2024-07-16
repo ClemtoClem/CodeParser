@@ -3,13 +3,14 @@
 
 #include <map>
 #include "Node.hpp"
+#include "SharedPtr.hpp"
 
 class XMLNode: public Node {
 protected:
     std::map<std::string, std::string> _attributes;
 
 public:
-    XMLNode(const std::string &name, Data *data = nullptr, Node *parent = nullptr);
+    XMLNode(const std::string &name, SharedPtr<Data> data = nullptr, SharedPtr<Node> parent = nullptr);
 
     // Méthodes pour manipuler les attributs
     void addAttribute(const std::string &name, const std::string &value);

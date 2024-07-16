@@ -6,27 +6,27 @@
 #include <sstream>
 #include "Document.hpp"
 #include "XMLNode.hpp"
+#include "SharedPtr.hpp"
 
-class XMLDocument: public Document {
+class XMLDocument : public Document {
 public:
     XMLDocument();
     ~XMLDocument();
 
-    bool loadFile(const std::string &filename) override;
-    bool saveInFile(const std::string &filename) override;
+    bool load(const std::string& filename) override;
+    bool save(const std::string& filename) override;
 
-    const std::string getError() const override;
+    const std::string& getError() const override;
 
-    Node *getRoot() const override;
+    SharedPtr<Node> getRoot() const override;
 
     void deleteAllNodes() override;
-    
-private:
-    XMLNode *_root;
-    std::string _error;
 
-    void parseAttributes(const std::string &tag, XMLNode *node);
-    void parse(const std::string &content, XMLNode *parent);
+private:
+    SharedPtr<XMLNode> _root;
+
+    void parseAttributes(const std::string& tag, const SharedPtr<XMLNode>& node);
+    void parse(const std::string& content, const SharedPtr<XMLNode>& parent);
 };
 
 #endif // __XML_DOCUMENT_HPP

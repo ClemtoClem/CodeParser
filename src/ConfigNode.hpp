@@ -7,7 +7,7 @@
 
 class ConfigNode : public Node {
 public:
-    ConfigNode(const std::string &name, Data *data = nullptr, Node *parent = nullptr);
+    ConfigNode(const std::string &name, SharedPtr<Data> data = nullptr, SharedPtr<Node> parent = nullptr);
 
     virtual std::string toString(size_t tabulate = 0) const override;
 

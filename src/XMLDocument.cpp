@@ -6,8 +6,7 @@ XMLDocument::~XMLDocument() {
     deleteAllNodes();
 }
 
-bool XMLDocument::loadFile(const std::string &filename) {
-    // Vérifier l'extension du fichier
+bool XMLDocument::load(const std::string& filename) {
     if (!checkExtensions(filename, {"xml"})) {
         _error = "File extension not allowed";
         return false;
@@ -28,9 +27,8 @@ bool XMLDocument::loadFile(const std::string &filename) {
         removeEmptyLines(content);
 
         if (content[0] == '<') {
-            if (_root) delete _root;
-            _root = new XMLNode("root");
-            parseXML(content, _root.get());
+            _root = SharedPtr<XMLNode>(new XMLNode("root"));
+            parse(content, _root);
         } else {
             _error = "File is not an XML file";
             return false;
@@ -39,21 +37,16 @@ bool XMLDocument::loadFile(const std::string &filename) {
         _error = "File is empty";
         return false;
     }
-    
-    if (_error.empty()) {
-        return true;
-    } else {
-        return false;
-    }
+
+    return _error.empty();
 }
 
-bool XMLDocument::saveInFile(const std::string &filename) {
+bool XMLDocument::save(const std::string& filename) {
     if (!_root) {
         _error = "No root node";
         return false;
     }
 
-    // Vérifier l'extension du fichier
     if (!checkExtensions(filename, {"xml"})) {
         _error = "File extension not allowed";
         return false;
@@ -71,20 +64,19 @@ bool XMLDocument::saveInFile(const std::string &filename) {
     return true;
 }
 
-const std::string XMLDocument::getError() const {
+const std::string& XMLDocument::getError() const {
     return _error;
 }
 
-Shared<Node> XMLDocument::getRoot() const {
+SharedPtr<Node> XMLDocument::getRoot() const {
     return _root;
 }
 
 void XMLDocument::deleteAllNodes() {
-    _root = new XMLNode("root");
+    _root = nullptr;
 }
 
-void XMLDocument::parseAttributes(const std::string &tag, XMLNode *node) {
-    // Simplified attribute parsing logic for demonstration
+void XMLDocument::parseAttributes(const std::string& tag, const SharedPtr<XMLNode>& node) {
     size_t pos = tag.find(' ');
     while (pos != std::string::npos) {
         size_t eqPos = tag.find('=', pos);
@@ -102,7 +94,7 @@ void XMLDocument::parseAttributes(const std::string &tag, XMLNode *node) {
     }
 }
 
-void XMLDocument::parse(const std::string &content, XMLNode *parent) {
+void XMLDocument::parse(const std::string& content, const SharedPtr<XMLNode>& parent) {
     size_t pos = 0;
     while (pos < content.size()) {
         size_t start = content.find('<', pos);
@@ -112,15 +104,15 @@ void XMLDocument::parse(const std::string &content, XMLNode *parent) {
         std::string tag = content.substr(start + 1, end - start - 1);
         if (tag[0] != '/') {
             std::string nodeName = tag.substr(0, tag.find(' '));
-            XMLNode *node = new XMLNode(nodeName, nullptr, parent);
-            parent->addChild(node.get());
+            SharedPtr<XMLNode> node(new XMLNode(nodeName, nullptr, parent));
+            parent->addChild(node);
 
-            parseAttributes(tag, node.get());
+            parseAttributes(tag, node);
 
             size_t closeTagStart = content.find("</" + nodeName + ">", end);
             size_t closeTagEnd = content.find('>', closeTagStart);
             std::string innerXML = content.substr(end + 1, closeTagStart - end - 1);
-            parse(innerXML, node.get());
+            parse(innerXML, node);
 
             pos = closeTagEnd + 1;
         } else {

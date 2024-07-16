@@ -6,7 +6,7 @@ ConfigDocument::~ConfigDocument() {
     deleteAllNodes();
 }
 
-bool ConfigDocument::loadFile(const std::string &filename) {
+bool ConfigDocument::load(const std::string &filename) {
     // Vérifier l'extension du fichier
     if (!checkExtensions(filename, {"cfg"})) {
         _error = "File extension not allowed";
@@ -27,22 +27,16 @@ bool ConfigDocument::loadFile(const std::string &filename) {
     if (!content.empty()) {
         removeEmptyLines(content);
 
-        if(_root) delete _root;
-        _root = new ConfigNode("root");
+        _root = SharedPtr<ConfigNode>(new ConfigNode("root"));
         parse(content, _root);
     } else {
         _error = "File is empty";
-        return false;
     }
 
-    if (_error.empty()) {
-        return true;
-    } else {
-        return false;
-    }
+    return _error.empty();
 }
 
-bool ConfigDocument::saveInFile(const std::string &filename) {
+bool ConfigDocument::save(const std::string &filename) {
     if (!_root) {
         _error = "No root node";
         return false;
@@ -64,4 +58,23 @@ bool ConfigDocument::saveInFile(const std::string &filename) {
     file.close();
     
     return true;
+}
+
+const std::string &ConfigDocument::getError() const {
+    return _error;
+}
+
+SharedPtr<Node> ConfigDocument::getRoot() const {
+    return SharedPtr<Node>(dynamic_cast<Node*>(_root.get()));
+}
+
+void ConfigDocument::deleteAllNodes() {
+    _root.remove();
+}
+
+std::string ConfigDocument::toString() const {
+    return std::string();
+}
+
+void ConfigDocument::parse(const std::string &content, SharedPtr<ConfigNode> parent) {
 }

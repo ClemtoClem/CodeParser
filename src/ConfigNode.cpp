@@ -1,6 +1,6 @@
 #include "ConfigNode.hpp"
 
-ConfigNode::ConfigNode(const std::string &name, Data *data, Node *parent)
+ConfigNode::ConfigNode(const std::string &name, SharedPtr<Data> data, SharedPtr<Node> parent)
  : Node('CONFIG', name, data, parent) {
 }
 
