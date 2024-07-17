@@ -4,9 +4,11 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include "Document.hpp"
 #include "XMLNode.hpp"
 #include "SharedPtr.hpp"
+#include "Utils.hpp"
 
 class XMLDocument : public Document {
 public:
@@ -21,6 +23,25 @@ public:
     SharedPtr<Node> getRoot() const override;
 
     void deleteAllNodes() override;
+
+    template <typename T>
+    SharedPtr<Data> operator[](const std::string& path, const T& value) override {
+        // split path into nodes names
+        std::vector<std::string> nodes_names = split(path, '/');
+        // get the root node
+        SharedPtr<Node> node = nullptr;
+        // iterate over nodes names
+        for (const auto& node_name : nodes_names) {
+            // check if node exists
+            if (node->hasChild(node_name)) {
+                // get the node
+                node = node->getChild(node_name);
+            } else if (node_name == "@") {
+                // get the data
+                node = _root->cast<Node>();
+            }
+        }
+    }
 
 private:
     SharedPtr<XMLNode> _root;

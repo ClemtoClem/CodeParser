@@ -21,7 +21,7 @@ protected:
 public:
     Node(const std::string &type, const std::string &name, SharedPtr<Data> data = nullptr, SharedPtr<Node> parent = nullptr);
 
-    ~Node();
+    virtual ~Node();
     
     /**
      * @brief Retourne le type de ce noeud

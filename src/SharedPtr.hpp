@@ -122,6 +122,20 @@ public:
         release();
     }
 
+    template<typename U>
+    SharedPtr<U> cast(const SharedPtr<T>& other) {
+        SharedPtr<U> result;
+        result._ptr = dynamic_cast<U*>(other._ptr);
+        if (result._ptr) {
+            result._refCount = other._refCount;
+            result._mutex = other._mutex;
+            if (result._refCount) {
+                ++(*result._refCount);
+            }
+        }
+        return result;
+    }
+
 private:
     void incrementeRefCount() {
         if (_refCount) {
@@ -166,6 +180,22 @@ private:
     T* _ptr;
     unsigned int* _refCount;
     std::mutex* _mutex;
+
+    template<typename U> friend class SharedPtr;
 };
+
+template<typename T, typename U>
+SharedPtr<T> dynamic_pointer_cast(const SharedPtr<U>& other) {
+    SharedPtr<T> result;
+    result._ptr = dynamic_cast<T*>(other._ptr);
+    if (result._ptr) {
+        result._refCount = other._refCount;
+        result._mutex = other._mutex;
+        if (result._refCount) {
+            ++(*result._refCount);
+        }
+    }
+    return result;
+}
 
 #endif // __SHARED_PTR_HPP

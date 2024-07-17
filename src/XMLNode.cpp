@@ -22,26 +22,31 @@ bool XMLNode::hasAttribute(const std::string& name) const {
 }
 
 std::string XMLNode::toString(size_t tabulate) const {
-    std::string indent(tabulate, ' ');
-    std::string result = indent + "<" + _name;
+    std::string indent(tabulate, '\t');
+    std::string result;
+    
+    if (_data->getType() == "comment") {
+        result = indent + _data->toString("xml");
+    } else {
+        result = indent + "<" + _name;
 
-    for (const auto& attr : _attributes) {
-        result += " " + attr.first + "=\"" + attr.second + "\"";
-    }
-
-    if (_firstChild) {
-        result += ">\n";
-
-        SharedPtr<Node> child = _firstChild;
-        while (child) {
-            result += child->toString(tabulate + 1) + "\n";
-            child = child->_nextChild;
+        for (const auto& attr : _attributes) {
+            result += " " + attr.first + "=\"" + attr.second + "\"";
         }
 
-        result += indent + "</" + _name + ">";
-    } else {
-        result += (_data ? ">" + _data->toString() + "</" + _name + ">" : " />");
-    }
+        if (_firstChild) {
+            result += ">\n";
 
+            SharedPtr<Node> child = _firstChild;
+            while (child) {
+                result += child->toString(tabulate + 1) + "\n";
+                child = child->_nextChild;
+            }
+
+            result += indent + "</" + _name + ">";
+        } else {
+            result += (_data ? ">" + _data->toString("xml") + "</" + _name + ">" : " />");
+        }
+    }
     return result;
 }
