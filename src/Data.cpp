@@ -1,6 +1,6 @@
 #include "Data.hpp"
 
-void ArrayData::pushData(const SharedPtr<Data>& newData) {
+void ArrayData::pushData(const std::shared_ptr<Data> newData) {
     _array.push_back(newData);
 }
 
@@ -10,16 +10,16 @@ void ArrayData::deleteData(size_t i) {
     }
 }
 
-SharedPtr<Data> ArrayData::popData(size_t i) {
+std::shared_ptr<Data> ArrayData::popData(size_t i) {
     if (i < _array.size()) {
-        SharedPtr<Data> data = _array[i]; // Retourne le pointeur vers l'objet Data à l'index i
+        std::shared_ptr<Data> data = _array[i]; // Retourne le pointeur vers l'objet Data à l'index i
         _array.erase(_array.begin() + i); // Retire l'élément du vector
         return data;
     }
     return nullptr;
 }
 
-SharedPtr<Data> ArrayData::getData(size_t i) const {
+std::shared_ptr<Data> ArrayData::getData(size_t i) const {
     if (i < _array.size()) {
         return _array[i]; // Retourne le pointeur vers l'objet Data à l'index i
     }
@@ -36,14 +36,14 @@ std::string ArrayData::toString(const std::string &format) const {
         result = "[ ";
         for (size_t i = 0; i < _array.size(); ++i) {
             if (i > 0) result += ", ";
-            result += _array[i]->toString();
+            result += _array[i]->toString(format);
         }
         result += " ]";
         return result;
     } else if (format == "xml") {
         for (size_t i = 0; i < _array.size(); ++i) {
             if (i > 0) result += " ";
-            result += _array[i]->toString();
+            result += _array[i]->toString(format);
         }
     }
     return result;

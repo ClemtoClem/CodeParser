@@ -2,13 +2,13 @@
 #include "XMLDocument.hpp"
 
 int main() {
-    XMLDocument doc;
-    if (!doc.load("example.xml")) {
-        std::cerr << "Error parsing XML: " << doc.getError() << std::endl;
+    XMLDocument xml_doc;
+    if (!xml_doc.load("./data/test.xml")) {
+        std::cerr << "Error parsing XML: " << xml_doc.getError() << std::endl;
         return 1;
     }
 
-    XMLNode *root = dynamic_cast<XMLNode*>(doc.getRoot());
+    std::shared_ptr<XMLNode> root = std::dynamic_pointer_cast<XMLNode>(xml_doc.getRoot());
     if (!root) {
         std::cerr << "Error: root node not found" << std::endl;
         return 1;
@@ -16,7 +16,7 @@ int main() {
     
     std::cout << "Root node name: " << root->getName() << std::endl;
 
-    XMLNode *child1 = dynamic_cast<XMLNode*>(root->getChild("child1"));
+    std::shared_ptr<XMLNode>child1 = std::dynamic_pointer_cast<XMLNode>(root->getChild("child1"));
     if (!child1) {
         std::cerr << "Error: child1 node not found" << std::endl;
         return 1;
@@ -26,7 +26,7 @@ int main() {
     std::cout << "Child attribute attr1: " << child1->getAttribute("attr1") << std::endl;
     std::cout << "Child attribute attr2: " << child1->getAttribute("attr2") << std::endl;
 
-    XMLNode *subchild = dynamic_cast<XMLNode*>(child1->getChild("subchild"));
+    std::shared_ptr<XMLNode>subchild = std::dynamic_pointer_cast<XMLNode>(child1->getChild("subchild"));
     if (!subchild) {
         std::cerr << "Error: subchild node should not exist" << std::endl;
         return 1;
@@ -35,7 +35,7 @@ int main() {
     std::cout << "Subchild node name: " << subchild->getName() << std::endl;
     std::cout << "Subchild attribute attr3: " << subchild->getAttribute("attr3") << std::endl;
     
-    XMLNode *child2 = dynamic_cast<XMLNode*>(root->getChild("child2"));
+    std::shared_ptr<XMLNode>child2 = std::dynamic_pointer_cast<XMLNode>(root->getChild("child2"));
     if (!child2) {
         std::cerr << "Error: child2 node not found" << std::endl;
         return 1;

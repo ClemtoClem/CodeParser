@@ -3,7 +3,7 @@
 
 #include "Document.hpp"
 #include "JSONNode.hpp"
-#include "SharedPtr.hpp"
+#include <memory>
 
 class JSONDocument : public Document {
 public:
@@ -15,16 +15,16 @@ public:
 
     const std::string &getError() const override;
 
-    SharedPtr<Node> getRoot() const override;
+    std::shared_ptr<Node> getRoot() const override;
 
     void deleteAllNodes() override;
 
     std::string toString() const;
 
 private:
-    SharedPtr<JSONNode> _root;
+    std::shared_ptr<JSONNode> _root;
 
-    void parse(const std::string &content, SharedPtr<JSONNode> parent);
+    void parse(const std::string &content, std::shared_ptr<JSONNode> parent);
 };
 
 #endif // __JSONDOCUMENT_HPP

@@ -7,7 +7,7 @@
 
 class JSONNode : public Node {
 public:
-    JSONNode(const std::string &name, SharedPtr<Data> data = nullptr, SharedPtr<Node> parent = nullptr);
+    JSONNode(const std::string &name, std::shared_ptr<Data> data = nullptr, std::shared_ptr<Node> parent = nullptr);
 
     virtual std::string toString(size_t tabulate = 0) const override;
 

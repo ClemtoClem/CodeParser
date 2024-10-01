@@ -1,6 +1,7 @@
 #include "ConfigDocument.hpp"
 
-ConfigDocument::ConfigDocument() : _root(nullptr) {}
+ConfigDocument::ConfigDocument() : Document("CONFIG"), _root(nullptr) {
+}
 
 ConfigDocument::~ConfigDocument() {
     deleteAllNodes();
@@ -27,7 +28,7 @@ bool ConfigDocument::load(const std::string &filename) {
     if (!content.empty()) {
         removeEmptyLines(content);
 
-        _root = SharedPtr<ConfigNode>(new ConfigNode("root"));
+        _root = std::shared_ptr<ConfigNode>(new ConfigNode("root"));
         parse(content, _root);
     } else {
         _error = "File is empty";
@@ -64,17 +65,17 @@ const std::string &ConfigDocument::getError() const {
     return _error;
 }
 
-SharedPtr<Node> ConfigDocument::getRoot() const {
-    return SharedPtr<Node>(dynamic_cast<Node*>(_root.get()));
+std::shared_ptr<Node> ConfigDocument::getRoot() const {
+    return std::shared_ptr<Node>(dynamic_cast<Node*>(_root.get()));
 }
 
 void ConfigDocument::deleteAllNodes() {
-    _root.remove();
+    _root.reset();
 }
 
 std::string ConfigDocument::toString() const {
     return std::string();
 }
 
-void ConfigDocument::parse(const std::string &content, SharedPtr<ConfigNode> parent) {
+void ConfigDocument::parse(const std::string &content, std::shared_ptr<ConfigNode> parent) {
 }

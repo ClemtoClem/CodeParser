@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <memory>
 
 class Data {
 public:
@@ -18,7 +19,7 @@ protected:
 class CommentData : public Data {
 public:
     CommentData(const std::string& comment) : Data("comment"), _comment(comment) {}
-    std::string toString() const override;
+    std::string toString(const std::string &format) const override;
 protected:
     std::string _comment;
 };
@@ -27,16 +28,16 @@ class ArrayData : public Data {
 public:
     ArrayData() : Data("array") {}
 
-    void pushData(SharedPtr<Data> newData);
+    void pushData(std::shared_ptr<Data> newData);
     void deleteData(size_t i);
-    SharedPtr<Data> popData(size_t i) const;
-    SharedPtr<Data> getData(size_t i) const;
+    std::shared_ptr<Data> popData(size_t i);
+    std::shared_ptr<Data> getData(size_t i) const;
     size_t getSize() const;
 
     std::string toString(const std::string &format) const override;
 
 protected:
-    std::vector<SharedPtr<Data>> _array;
+    std::vector<std::shared_ptr<Data>> _array;
 };
 
 inline std::string typeidToString(const std::type_info& type) {

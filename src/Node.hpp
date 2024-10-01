@@ -4,22 +4,22 @@
 #include <string>
 #include <vector>
 #include "Data.hpp"
-#include "SharedPtr.hpp"
+#include <memory>
 
 class Node {
 protected:
     std::string     _type;
     std::string     _name;
-    SharedPtr<Data> _data;
+    std::shared_ptr<Data> _data;
     
-    SharedPtr<Node> _parent;
-    SharedPtr<Node> _firstChild;
-    SharedPtr<Node> _lastChild;
-    SharedPtr<Node> _nextChild;
+    std::shared_ptr<Node> _parent;
+    std::shared_ptr<Node> _firstChild;
+    std::shared_ptr<Node> _lastChild;
+    std::shared_ptr<Node> _nextChild;
     size_t          _nbChildren;
     
 public:
-    Node(const std::string &type, const std::string &name, SharedPtr<Data> data = nullptr, SharedPtr<Node> parent = nullptr);
+    Node(const std::string &type, const std::string &name, std::shared_ptr<Data> data = nullptr, std::shared_ptr<Node> parent = nullptr);
 
     virtual ~Node();
     
@@ -39,14 +39,22 @@ public:
      * @brief Retourne le parent de ce noeud
      * @return Pointeur sur une classe Node
      */
-    SharedPtr<Node> getParent() const;
+    std::shared_ptr<Node> getParent() const;
+
+    std::shared_ptr<Node> getFirstChild() const;
+
+    std::shared_ptr<Node> getLastChild() const;
+
+    std::shared_ptr<Node> getNextChild() const;
+
+    bool hasChild(const std::string &name) const;
 
     /**
      * @brief Recherche un noeud enfant à partir de son nom
      * @param[in] name nom du noeud à rechercher
      * @return Pointeur sur une classe Node
      */
-    SharedPtr<Node> getChild(const std::string &name) const;
+    std::shared_ptr<Node> getChild(const std::string &name) const;
 
     /**
      * @brief Retourne le nombre de noeuds enfants
@@ -58,14 +66,14 @@ public:
      * @brief Ajouter un enfant
      * @param[in] newChild Pointeur sur une classe Node
      */
-    void addChild(SharedPtr<Node> newChild);
+    void addChild(std::shared_ptr<Node> newChild);
 
     /**
      * @brief Recherche un noeud à partir de son nom dans toute l'arborescence
      * @param[in] name nom du noeud à rechercher
      * @return Pointeur sur une classe Node
      */
-    SharedPtr<Node> getNode(const std::string &name) const;
+    std::shared_ptr<Node> getNode(const std::string &name) const;
 
     /**
      * @brief Supprime le noeud et tous ses enfants
@@ -77,9 +85,9 @@ public:
      */
     virtual std::string toString(size_t tabulate = 0) const = 0;
 
-    virtual void setData(SharedPtr<Data> data);
+    virtual void setData(std::shared_ptr<Data> data);
 
-    virtual SharedPtr<Data> getData() const;
+    virtual std::shared_ptr<Data> getData() const;
 
     virtual std::string getDataType() const;
 

@@ -1,6 +1,6 @@
 #include "XMLNode.hpp"
 
-XMLNode::XMLNode(const std::string& name, SharedPtr<Data> data, SharedPtr<Node> parent)
+XMLNode::XMLNode(const std::string& name, std::shared_ptr<Data> data, std::shared_ptr<Node> parent)
     : Node("XML", name, data, parent) {
 }
 
@@ -37,10 +37,10 @@ std::string XMLNode::toString(size_t tabulate) const {
         if (_firstChild) {
             result += ">\n";
 
-            SharedPtr<Node> child = _firstChild;
+            std::shared_ptr<Node> child = _firstChild;
             while (child) {
                 result += child->toString(tabulate + 1) + "\n";
-                child = child->_nextChild;
+                child = child->getNextChild();
             }
 
             result += indent + "</" + _name + ">";

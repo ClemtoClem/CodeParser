@@ -1,6 +1,6 @@
 #include "Node.hpp"
 
-Node::Node(const std::string& type, const std::string& name, SharedPtr<Data> data, SharedPtr<Node> parent)
+Node::Node(const std::string& type, const std::string& name, std::shared_ptr<Data> data, std::shared_ptr<Node> parent)
     : _type(type), _name(name), _data(data), _parent(parent), _firstChild(nullptr), _lastChild(nullptr), _nextChild(nullptr), _nbChildren(0) {
 }
 
@@ -16,12 +16,36 @@ const std::string& Node::getName() const {
     return _name;
 }
 
-SharedPtr<Node> Node::getParent() const {
+std::shared_ptr<Node> Node::getParent() const {
     return _parent;
 }
 
-SharedPtr<Node> Node::getChild(const std::string& name) const {
-    SharedPtr<Node> node = _firstChild;
+std::shared_ptr<Node> Node::getFirstChild() const {
+    return _firstChild;
+}
+
+std::shared_ptr<Node> Node::getLastChild() const {
+    return _lastChild;
+}
+
+std::shared_ptr<Node> Node::getNextChild() const {
+    return _nextChild;
+}
+
+bool Node::hasChild(const std::string &name) const {
+    std::shared_ptr<Node> node = _firstChild;
+    while (node != nullptr) {
+        if (node->_name == name) {
+            return true;
+        } else {
+            node = node->_nextChild;
+        }
+    }
+    return false;
+}
+
+std::shared_ptr<Node> Node::getChild(const std::string& name) const {
+    std::shared_ptr<Node> node = _firstChild;
     while (node != nullptr) {
         if (node->_name == name) {
             break;
@@ -36,7 +60,7 @@ size_t Node::getNbChildren() const {
     return _nbChildren;
 }
 
-void Node::addChild(const SharedPtr<Node>& newChild) {
+void Node::addChild(const std::shared_ptr<Node> newChild) {
     if (newChild) {
         if (_lastChild) {
             _lastChild->_nextChild = newChild;
@@ -48,13 +72,13 @@ void Node::addChild(const SharedPtr<Node>& newChild) {
     }
 }
 
-SharedPtr<Node> Node::getNode(const std::string& name) const {
-    SharedPtr<Node> node = _firstChild;
+std::shared_ptr<Node> Node::getNode(const std::string& name) const {
+    std::shared_ptr<Node> node = _firstChild;
     while (node != nullptr) {
         if (node->_name == name) {
             break;
         } else {
-            SharedPtr<Node> node2 = node->getNode(name);
+            std::shared_ptr<Node> node2 = node->getNode(name);
             if (node2) {
                 return node2;
             } else {
@@ -73,18 +97,18 @@ void Node::deleteAllNodes() {
     _nbChildren = 0;
 }
 
-void Node::setData(SharedPtr<Data> data) {
+void Node::setData(std::shared_ptr<Data> data) {
     _data = data;
 }
 
-SharedPtr<Data> Node::getData() const {
+std::shared_ptr<Data> Node::getData() const {
     return _data;
 }
 
 std::string Node::getDataType() const {
-    return _data.ok()? _data->getDataType() : "";
+    return (_data != nullptr)? _data->getType() : "";
 }
 
 bool Node::hasData() const {
-    return _data.ok();
+    return (_data != nullptr);
 }

@@ -3,7 +3,7 @@
 
 #include "Document.hpp"
 #include "ConfigNode.hpp"
-#include "SharedPtr.hpp"
+#include <memory>
 
 class ConfigDocument : public Document {
 public:
@@ -15,16 +15,16 @@ public:
 
     const std::string &getError() const override;
 
-    SharedPtr<Node> getRoot() const override;
+    std::shared_ptr<Node> getRoot() const override;
 
     void deleteAllNodes() override;
 
     std::string toString() const;
 
 private:
-    SharedPtr<ConfigNode> _root;
+    std::shared_ptr<ConfigNode> _root;
 
-    void parse(const std::string &content, SharedPtr<ConfigNode> parent);
+    void parse(const std::string &content, std::shared_ptr<ConfigNode> parent);
 };
 
 #endif // __CONFIG_DOCUMENT_HPP

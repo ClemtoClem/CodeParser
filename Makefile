@@ -1,4 +1,4 @@
-PROJECT_NAME := signaux
+PROJECT_NAME := CodeParser
 CC        := g++
 SRCDIR    := src
 HEADERDIR := src

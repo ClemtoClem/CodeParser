@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iostream>
 
-JSONDocument::JSONDocument() : _root(nullptr) {}
+JSONDocument::JSONDocument() : Document("JSON"), _root(nullptr) {}
 
 JSONDocument::~JSONDocument() {
     deleteAllNodes();
@@ -31,9 +31,8 @@ bool JSONDocument::load(const std::string &filename) {
         removeEmptyLines(content);
         
         if (content[0] == '{') {
-            if (_root) delete _root;
-            _root = SharedPtr<JSONNode>(new JSONNode("root"));
-            parseJSON(content, _root);
+            _root = std::shared_ptr<JSONNode>(new JSONNode("root"));
+            parse(content, _root);
         } else {
             _error = "File is not a JSON file";
         }
@@ -72,12 +71,12 @@ const std::string &JSONDocument::getError() const {
     return _error;
 }
 
-SharedPtr<Node> JSONDocument::getRoot() const {
-    return SharedPtr<Node>(dynamic_cast<Node*>(_root.get()));
+std::shared_ptr<Node> JSONDocument::getRoot() const {
+    return std::shared_ptr<Node>(dynamic_cast<Node*>(_root.get()));
 }
 
 void JSONDocument::deleteAllNodes() {
-    delete _root;
+    _root.reset();
     _root = nullptr;
 }
 
@@ -85,5 +84,5 @@ std::string JSONDocument::toString() const {
     return (_root) ? _root->toString() : "{}";
 }
 
-void JSONDocument::parse(const std::string &content, SharedPtr<JSONNode> parent) {
+void JSONDocument::parse(const std::string &content, std::shared_ptr<JSONNode> parent) {
 }
