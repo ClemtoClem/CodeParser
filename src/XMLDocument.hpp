@@ -35,7 +35,7 @@ private:
     std::shared_ptr<XMLNode> _root;
 
     bool checkTags(const std::string& content, std::vector<std::string> invalidTagsNames = {});
-    void parseAttributes(const std::string& tag, const std::shared_ptr<XMLNode> node);
+    //void parseAttributes(const std::string& tag, const std::shared_ptr<XMLNode> node);
     void parse(const std::string& content, const std::shared_ptr<XMLNode> parent);
 };
 
