@@ -1,8 +1,11 @@
-<main>
+<main version="1.0.0">
     <string name="title">This is an title</string>
-    <number name="value">38</number>
-    <vec2 name="vector">
-        <number name="x">10</number>
-        <number name="y">15</number>
-    </vec2>
+    <menu id="file" value="File">
+        <popup>
+            <menuitem value="New" onclick="CreateNewDoc()"/>
+            <menuitem value="Open" onclick="OpenDoc()"/>
+            <menuitem value="Close" onclick="CloseDoc()"/>
+        </popup>
+    </menu>
+    <autoresize value="true" />
 </main>

@@ -40,42 +40,30 @@ protected:
     std::vector<std::shared_ptr<Data>> _array;
 };
 
-inline std::string typeidToString(const std::type_info& type) {
-    if (type == typeid(uint8_t)) {
-        return "uint8_t";
-    } else if (type == typeid(uint16_t)) {
-        return "uint16_t";
-    } else if (type == typeid(uint32_t)) {
-        return "uint32_t";
-    } else if (type == typeid(uint64_t)) {
-        return "uint64_t";
-    } else if (type == typeid(int8_t)) {
-        return "int8_t";
-    } else if (type == typeid(int16_t)) {
-        return "int16_t";
-    } else if (type == typeid(int32_t)) {
-        return "int32_t";
-    } else if (type == typeid(int64_t)) {
-        return "int64_t";
-    } else if (type == typeid(int)) {
-        return "int";
-    } else if (type == typeid(float)) {
-        return "float";
-    } else if (type == typeid(double)) {
-        return "double";
-    } else if (type == typeid(bool)) {
-        return "bool";
-    } else if (type == typeid(std::string)) {
-        return "string";
-    } else {
-        return "unknown";
-    }
+template <typename T>
+inline std::string getNameTypeid() {
+    if (typeid(T) == typeid(uint8_t))   return "uint8_t";
+    if (typeid(T) == typeid(uint16_t))  return "uint16_t";
+    if (typeid(T) == typeid(uint32_t))  return "uint32_t";
+    if (typeid(T) == typeid(uint64_t))  return "uint64_t";
+    if (typeid(T) == typeid(int8_t))    return "int8_t";
+    if (typeid(T) == typeid(int16_t))   return "int16_t";
+    if (typeid(T) == typeid(int32_t))   return "int32_t";
+    if (typeid(T) == typeid(int64_t))   return "int64_t";
+    if (typeid(T) == typeid(char))      return "char";
+    if (typeid(T) == typeid(float))     return "float";
+    if (typeid(T) == typeid(double))    return "double";
+    if (typeid(T) == typeid(bool))      return "bool";
+    if (typeid(T) == typeid(void*))     return "pointer";
+    if (typeid(T) == typeid(std::string)) return "string";
+    if (typeid(T) == typeid(std::vector<std::shared_ptr<Data>>)) return "array";
+    return "unknown";
 }
 
 template<typename T>
 class ValueData : public Data {
 public:
-    ValueData(T value) : Data(typeidToString(typeid(T))), _value(value) {}
+    ValueData(T value) : Data(getNameTypeid<T>()), _value(value) {}
 
     std::string toString(const std::string &format) const override {
         std::stringstream ss;

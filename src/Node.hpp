@@ -8,15 +8,15 @@
 
 class Node {
 protected:
-    std::string     _type;
-    std::string     _name;
+    std::string _type;
+    std::string _name;
     std::shared_ptr<Data> _data;
     
     std::shared_ptr<Node> _parent;
     std::shared_ptr<Node> _firstChild;
     std::shared_ptr<Node> _lastChild;
     std::shared_ptr<Node> _nextChild;
-    size_t          _nbChildren;
+    size_t _nbChildren;
     
 public:
     Node(const std::string &type, const std::string &name, std::shared_ptr<Data> data = nullptr, std::shared_ptr<Node> parent = nullptr);
@@ -86,6 +86,12 @@ public:
     virtual std::string toString(size_t tabulate = 0) const = 0;
 
     virtual void setData(std::shared_ptr<Data> data);
+
+    template <typename T>
+    void setValue(const T &value) {
+        _type = typeid(T).name();
+        _data = std::make_shared<ValueData<T>>(value);
+    }
 
     virtual std::shared_ptr<Data> getData() const;
 

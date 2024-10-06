@@ -98,6 +98,9 @@ void Node::deleteAllNodes() {
 }
 
 void Node::setData(std::shared_ptr<Data> data) {
+    if (_data!= nullptr) {
+        _data.reset();
+    }
     _data = data;
 }
 
@@ -106,7 +109,7 @@ std::shared_ptr<Data> Node::getData() const {
 }
 
 std::string Node::getDataType() const {
-    return (_data != nullptr)? _data->getType() : "";
+    return (_data != nullptr)? _data->getType() : "unknown";
 }
 
 bool Node::hasData() const {

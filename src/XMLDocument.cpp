@@ -27,23 +27,13 @@ bool XMLDocument::load(const std::string& filename) {
     std::string content = buffer.str();
     file.close();
 
-    if (!checkTags(content)) {
-        return false;
-    }
-
     if (!content.empty()) {
         removeEmptyLines(content);
 
-        if (content[0] == '<') {
-            _root = std::shared_ptr<XMLNode>(new XMLNode("root"));
-            parse(content, _root);
-        } else {
-            _error = "File is not an XML file";
-            return false;
-        }
+        _root = std::shared_ptr<XMLNode>(new XMLNode("root"));
+        parse(_root, content);
     } else {
         _error = "File is empty";
-        return false;
     }
 
     return _error.empty();
@@ -106,98 +96,90 @@ std::shared_ptr<Data> XMLDocument::findNode(const std::string &path) {
     return node->getData();
 }
 
-bool XMLDocument::checkTags(const std::string &content, std::vector<std::string> invalidTagsNames) {
-    // Pile pour stocker les balises ouvertes
-    std::stack<std::string> tagStack;
-    // Regex pour capturer les balises HTML (ouvertes et fermées avec des attributs)
-    std::regex tagPattern(R"(<\/?([a-z]+)([^>]*)>)");
+void XMLDocument::parseAttributes(std::shared_ptr<XMLNode> node, const std::string &attr_content) {
+    std::regex attrRegex(R"(([a-zA-Z_:][a-zA-Z0-9_.:-]*)\s*=\s*\"(.*?)\")");  // Expression régulière pour les attributs
     std::smatch match;
-    std::string::const_iterator searchStart(content.cbegin());
 
-    // Parcours du contenu XML
-    while (std::regex_search(searchStart, content.cend(), match, tagPattern)) {
-        std::string tag = match[0];
-        std::string tagName = match[1];
-        // Vérifier si c'est une balise fermante
-        if (tag[1] == '/') {
-            // C'est une balise fermante, vérifier si elle correspond à la dernière ouverte
-            if (tagStack.empty() || tagStack.top() != tagName) {
-                std::stringstream ss;
-                ss << "incorrect tag: " << tag;
-                _error = ss.str();
-                return false;
-            }
-            // La balise correspond, on la retire de la pile
-            //std::cout << "Closing tag: " << tag << std::endl;
-            tagStack.pop();
-        } else {
-            // C'est une balise ourvrante
-            for (const std::string& invalidTag : invalidTagsNames) {
-                if (tagName == invalidTag) {
-                    std::stringstream ss;
-                    ss << "invalid tag: " << tag;
-                    _error = ss.str();
-                    return false;
-                }
-            }
-            // on l'ajoute à la pile
-            tagStack.push(tagName);
-        }
-        // Avancer la recherche dans la chaîne
-        searchStart = match.suffix().first;
+    std::string::const_iterator searchStart(attr_content.cbegin());
+    while (std::regex_search(searchStart, attr_content.cend(), match, attrRegex)) {
+        std::string name = match[1].str();     // Nom de l'attribut
+        std::string value = match[2].str();    // Valeur de l'attribut
+        node->addAttribute(name, value);       // Ajouter l'attribut au nœud
+        searchStart = match.suffix().first;    // Avancer dans la chaîne
     }
-
-    // Vérifier si la pile est vide à la fin
-    if (!tagStack.empty()) {
-        std::stringstream ss;
-        ss << "unclosed tag: " << tagStack.top();
-        _error = ss.str();
-        return false;
-    }
-
-    return true;
 }
 
-void XMLDocument::parse(const std::string& content, const std::shared_ptr<XMLNode> parent) {
-    // Regex to capture XML tags (open and close with attributes)
-    std::regex tagPattern(R"(<\/?([a-z]+)([^>]*)>)");
+void XMLDocument::parse(std::shared_ptr<XMLNode> parent, const std::string& content) {
+    // Regex pour une balise ouvrante/fermante
+    std::regex nodeRegex(R"(<\s*(/?)\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*([^>/]*)\s*(/?)\s*>)");
     std::smatch match;
+
     std::string::const_iterator searchStart(content.cbegin());
+    std::vector<std::string> openTagsName;
+    std::vector<std::shared_ptr<XMLNode>> stackNodes = {parent};
 
-    // Traverse the XML content
-    while (std::regex_search(searchStart, content.cend(), match, tagPattern)) {
-        std::string tag = match[0];
-        std::string tagName = match[1];
-        std::string attributes = match[2];
+    while (std::regex_search(searchStart, content.cend(), match, nodeRegex)) {
+        bool isClosingTag = match[1].matched && match[1].str() == "/";  // '/' au début de la balise
+        std::string tagName = match[2].str();                           // Nom de la balise
+        std::string attributes = match[3].str();                        // Attributs éventuels
+        bool isSelfClosingTag = match[4].matched && match[4].str() == "/"; // '/' à la fin de la balise (balise auto-fermante)
 
-        if (tag[1] != '/') {
-            // It's an opening tag
-            std::shared_ptr<XMLNode> node(new XMLNode(tagName, nullptr, parent));
-            parent->addChild(node);
+        // Vérification des erreurs
+        if (isClosingTag && isSelfClosingTag) {
+            _error = "A tag cannot be closing and self-closing at the same time";
+            return;
+        }
+        if (isClosingTag && !attributes.empty()) {
+            _error = "A closing tag cannot have attributes";
+            return;
+        }
 
-            // Parse attributes using regex
-            std::regex attrPattern(R"(([a-z]+)="([^"]*)\")");
-            std::smatch attrMatch;
-            std::string::const_iterator attrSearchStart(attributes.cbegin());
+        // Si c'est une balise fermante
+        if (isClosingTag) {
+            //std::cout << "Closing Tag " << openTagsName.size() << ": " << tagName << std::endl;
 
-            while (std::regex_search(attrSearchStart, attributes.cend(), attrMatch, attrPattern)) {
-                std::string name = attrMatch[1];
-                std::string value = attrMatch[2];
-                node->addAttribute(name, value);
-                attrSearchStart = attrMatch.suffix().first;
+            std::string openTagName = openTagsName.back();
+            openTagsName.pop_back();
+            if (tagName != openTagName) {
+                _error = "Mismatched closing tag: " + tagName;
+                return;
             }
 
-            // Find the closing tag
-            std::string closeTag = "</" + tagName + ">";
-            size_t closeTagStart = content.find(closeTag, match.suffix().first - content.cbegin());
-            size_t closeTagEnd = closeTagStart + closeTag.size();
-            std::string innerXML = content.substr(match.suffix().first - content.cbegin(), closeTagStart - (match.suffix().first - content.cbegin()));
-            parse(innerXML, node);
-
-            searchStart = content.cbegin() + closeTagEnd;
-        } else {
-            // It's a closing tag, move the search forward
-            searchStart = match.suffix().first;
+            // Le nœud antécédent redevient parent
+            parent = stackNodes.back();
+            stackNodes.pop_back();
         }
+        
+        // Si c'est une balise auto-fermante, on ne faite pas d'appel récursif
+        else if (isSelfClosingTag) {
+            //std::cout << "Self-Closing Tag " << openTagsName.size() << ": " << tagName << std::endl;
+
+            std::shared_ptr<XMLNode> newNode = std::shared_ptr<XMLNode>(new XMLNode(tagName, nullptr, parent));
+            if (!attributes.empty()) {
+                parseAttributes(newNode, attributes);
+            }
+            parent->addChild(newNode);
+        }
+        
+        // Si c'est une balise ouvrante
+        else {
+
+            std::shared_ptr<XMLNode> newNode = std::shared_ptr<XMLNode>(new XMLNode(tagName, nullptr, parent));
+            if (!attributes.empty()) {
+                parseAttributes(newNode, attributes);
+            }
+            //std::cout << "Parent: " << parent->getName() << std::endl;
+            parent->addChild(newNode);
+
+            // Le nouveau nœud devient parent
+            stackNodes.push_back(newNode);
+            parent = newNode;
+
+            openTagsName.push_back(tagName);
+            //std::cout << "Opening Tag " << openTagsName.size() << ": " << tagName << std::endl;
+        }
+
+        // Avancer dans la recherche
+        searchStart = match.suffix().first;
     }
 }
